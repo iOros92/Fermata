@@ -26,7 +26,7 @@ set(GGML_STATIC ${IS_RELEASE} CACHE BOOL "" FORCE)
 set(GGML_LTO ${IS_RELEASE} CACHE BOOL "" FORCE)
 
 if (CMAKE_ANDROID_ARCH_ABI MATCHES "arm64")
-    set(GGML_VULKAN ON CACHE BOOL "Enable Vulkan" FORCE)
+    set(GGML_VULKAN OFF CACHE BOOL "Enable Vulkan" FORCE)
     FetchContent_Declare(vk_hpp GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Hpp
             GIT_TAG v1.3.275
     )
