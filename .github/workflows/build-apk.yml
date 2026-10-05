@@ -120,6 +120,28 @@ jobs:
           ./gradlew fermata:packageAutoReleaseUniversalApk -PABI=armeabi-v7a "${ARGS[@]}"
           mv $out/*.apk dist/arm/
 
+                - name: Build AAB
+        env:
+          NO_GS: true
+        run: |
+          echo "Building AAB"
+          echo "App name: $APP_NAME"
+          echo "Package suffix: $APP_ID_SFX"
+
+          ARGS=(--build-cache)
+          [ -z "$APP_NAME" ] || ARGS+=("-PAPP_NAME=$APP_NAME")
+          [ -z "$APP_ID_SFX" ] || ARGS+=("-PAPP_ID_SFX=$APP_ID_SFX")
+
+          ./gradlew bundleAutoRelease "${ARGS[@]}"
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: ifermata-${{ env.APP_VERSION }}${{ env.ARTIFACT_SFX }}-aab
+          path: fermata/build/outputs/bundle/autoRelease/*.aab
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Upload arm64 APK
         uses: actions/upload-artifact@v4
         with:
