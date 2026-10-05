@@ -15,7 +15,7 @@ env:
 
 jobs:
   build:
-    name: Build Fermata Auto APKs
+    name: Build Fermata Auto APKs and AAB
     runs-on: ubuntu-latest
 
     steps:
@@ -27,11 +27,11 @@ jobs:
       - name: Read versions from version catalog
         run: |
           ver_file=gradle/libs.versions.toml
-          version() { grep -Po "(?<=$1).+" $ver_file |  sed -e 's/[= "]//g'; }
+          version() { grep -Po "(?<=$1).+" "$ver_file" | sed -e 's/[= "]//g'; }
           app_version="$(version appVersionName)-$(git rev-parse --short HEAD)"
-          sed -ri "s/appVersionName.+/appVersionName = \"$app_version\"/" $ver_file
-          echo "APP_VERSION=$app_version" >> $GITHUB_ENV
-          echo "ANDROID_NDK_VERSION=$(version ndkVersion)" >> $GITHUB_ENV
+          sed -ri "s/appVersionName.+/appVersionName = \"$app_version\"/" "$ver_file"
+          echo "APP_VERSION=$app_version" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_VERSION=$(version ndkVersion)" >> "$GITHUB_ENV"
 
       - name: Export vars
         env:
@@ -47,6 +47,7 @@ jobs:
               echo "$name=$value" >> "$GITHUB_ENV"
             done
           }
+
           export_vars APP_NAME APP_ID_SFX ARTIFACT_SFX
 
       - name: Prepare build identifiers
@@ -95,6 +96,7 @@ jobs:
       - name: Create keystore and local.properties
         run: |
           [ -z "${{ secrets.CI_KEYSTORE }}" ] && exit 0
+
           echo "${{ secrets.CI_KEYSTORE }}" | base64 -d > keystore.jks
 
           cat > local.properties <<EOF
@@ -109,26 +111,43 @@ jobs:
           NO_GS: true
         run: |
           out=fermata/build/outputs/apk_from_bundle/autoRelease
+
           mkdir -p dist/arm64 dist/arm
+
           echo "App name: $APP_NAME"
           echo "Package suffix: $APP_ID_SFX"
-          ARGS=(--build-cache)
-           [ -z "$APP_NAME" ] || ARGS+=("-PAPP_NAME=$APP_NAME")
-           [ -z "$APP_ID_SFX" ] || ARGS+=("-PAPP_ID_SFX=$APP_ID_SFX")
-           ./gradlew fermata:packageAutoReleaseUniversalApk -PABI=arm64-v8a "${ARGS[@]}"
-          mv $out/*.apk dist/arm64/
-          ./gradlew fermata:packageAutoReleaseUniversalApk -PABI=armeabi-v7a "${ARGS[@]}"
-          mv $out/*.apk dist/arm/
 
-                - name: Build AAB
+          ARGS=(--build-cache)
+
+          [ -z "$APP_NAME" ] || ARGS+=("-PAPP_NAME=$APP_NAME")
+          [ -z "$APP_ID_SFX" ] || ARGS+=("-PAPP_ID_SFX=$APP_ID_SFX")
+
+          echo "Building arm64 APK..."
+
+          ./gradlew fermata:packageAutoReleaseUniversalApk \
+            -PABI=arm64-v8a \
+            "${ARGS[@]}"
+
+          mv "$out"/*.apk dist/arm64/
+
+          echo "Building ARM APK..."
+
+          ./gradlew fermata:packageAutoReleaseUniversalApk \
+            -PABI=armeabi-v7a \
+            "${ARGS[@]}"
+
+          mv "$out"/*.apk dist/arm/
+
+      - name: Build AAB
         env:
           NO_GS: true
         run: |
-          echo "Building AAB"
+          echo "Building AAB..."
           echo "App name: $APP_NAME"
           echo "Package suffix: $APP_ID_SFX"
 
           ARGS=(--build-cache)
+
           [ -z "$APP_NAME" ] || ARGS+=("-PAPP_NAME=$APP_NAME")
           [ -z "$APP_ID_SFX" ] || ARGS+=("-PAPP_ID_SFX=$APP_ID_SFX")
 
