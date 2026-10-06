@@ -17,30 +17,30 @@
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
-    <uses-feature
-        android:name="android.hardware.type.automotive"
-        android:required="true" />
-
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
         </intent>
     </queries>
 
-
     <application android:icon="@drawable/launcher">
+
         <meta-data
             android:name="xposedmodule"
             android:value="true" />
+
         <meta-data
             android:name="xposeddescription"
             android:value="Android Auto hooks" />
+
         <meta-data
             android:name="xposedminversion"
             android:value="54" />
+
         <meta-data
             android:name="xposedscope"
             android:resource="@array/xposedscope" />
+
         <meta-data
             android:name="androidx.car.app.minCarApiLevel"
             android:value="5"
@@ -110,6 +110,7 @@
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
+
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility" />
@@ -125,6 +126,7 @@
             android:authorities="${applicationId}.FileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
@@ -138,5 +140,7 @@
                 <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
             </intent-filter>
         </receiver>
+
     </application>
+
 </manifest>
