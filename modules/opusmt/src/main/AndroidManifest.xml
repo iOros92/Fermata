@@ -1,19 +1,31 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:dist="http://schemas.android.com/apk/distribution"
+    xmlns:tools="http://schemas.android.com/tools"
     split="opusmt"
     android:isFeatureSplit="true">
 
     <dist:module
         dist:instant="false"
         dist:title="@string/addon_name_opusmt">
+
         <dist:delivery>
             <dist:on-demand />
+
             <dist:install-time>
                 <dist:conditions>
-                    <dist:device-feature dist:name="android.software.leanback" />
+                    <dist:device-feature
+                        dist:name="android.software.leanback" />
                 </dist:conditions>
             </dist:install-time>
         </dist:delivery>
+
         <dist:fusing dist:include="true" />
     </dist:module>
+
+    <application>
+        <provider
+            android:name="ai.onnxruntime.TelemetryInitializer"
+            tools:node="remove" />
+    </application>
+
 </manifest>
